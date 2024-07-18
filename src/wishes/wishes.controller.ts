@@ -28,7 +28,7 @@ import {
     @UseInterceptors(
       FileInterceptor('photo', {
         storage: diskStorage({
-          destination: './uploads',
+          destination: './public/images',
           filename: (req, file, callback) => {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
             const ext = extname(file.originalname);
@@ -41,7 +41,7 @@ import {
       @Body('message') message: string,
       @UploadedFile() file: Express.Multer.File, // Correct type here
     ) {
-      const imageUrl = file ? `/uploads/${file.filename}` : undefined;
+      const imageUrl = file ? `/images/${file.filename}` : undefined;
       this.wishesService.addWish(message, imageUrl);
       return { message, imageUrl };
     }

@@ -36,7 +36,7 @@
     }
     .wishes-container {
       position: absolute;
-      bottom: 10px;
+      bottom: 100px; /* Adjusted to move the chat messages up */
       left: 50%;
       transform: translateX(-50%);
       width: 80%;
@@ -57,9 +57,9 @@
       animation: moveUp 3s linear forwards;
     }
     .wish img {
-      max-height: 50px;
-      max-width: 50px;
-      margin-left: 10px;
+      max-height: 200px; /* Adjusted to make images larger */
+      width: auto; /* Maintain aspect ratio */
+      margin-right: 10px; /* Space between image and text */
     }
     @keyframes moveUp {
       0% {
@@ -81,28 +81,36 @@
     document.addEventListener('DOMContentLoaded', () => {
       const socket = io();
 
-      // Fetch and display images in the carousel
-      fetch('/images')
-        .then(response => response.json())
-        .then(images => {
-          const carouselInner = document.querySelector('.carousel-inner');
-          const carouselIndicators = document.querySelector('.carousel-indicators');
-          carouselInner.innerHTML = '';
-          carouselIndicators.innerHTML = '';
-          images.forEach((image, index) => {
-            const isActive = index === 0 ? 'active' : '';
-            const carouselItem = `
-              <div class="carousel-item ${isActive}">
-                <img class="d-block w-100" src="${image}" alt="Slide ${index + 1}">
-              </div>
-            `;
-            carouselInner.innerHTML += carouselItem;
-            const indicator = `
-              <li data-target="#carouselExampleIndicators" data-slide-to="${index}" class="${isActive}"></li>
-            `;
-            carouselIndicators.innerHTML += indicator;
+      // Function to fetch and update images in the carousel
+      function fetchAndUpdateImages() {
+        fetch('/images')
+          .then(response => response.json())
+          .then(images => {
+            const carouselInner = document.querySelector('.carousel-inner');
+            const carouselIndicators = document.querySelector('.carousel-indicators');
+            carouselInner.innerHTML = '';
+            carouselIndicators.innerHTML = '';
+            images.forEach((image, index) => {
+              const isActive = index === 0 ? 'active' : '';
+              const carouselItem = `
+                <div class="carousel-item ${isActive}">
+                  <img class="d-block w-100" src="${image}" alt="Slide ${index + 1}">
+                </div>
+              `;
+              carouselInner.innerHTML += carouselItem;
+              const indicator = `
+                <li data-target="#carouselExampleIndicators" data-slide-to="${index}" class="${isActive}"></li>
+              `;
+              carouselIndicators.innerHTML += indicator;
+            });
           });
-        });
+      }
+
+      // Initial fetch to load images when the page loads
+      fetchAndUpdateImages();
+
+      // Set interval to update images every 50 seconds
+      setInterval(fetchAndUpdateImages, 60000);
 
       // Handle form submission
       const form = document.getElementById('wish-form');
@@ -116,9 +124,10 @@
         const result = await response.json();
         socket.emit('new-wish', result);
         document.getElementById('wish').value = '';
+        document.getElementById('photo').value = '';
       });
 
-      // Handle new wishes
+      // Handle new wishes received from socket
       socket.on('new-wish', (data) => {
         const wishesContainer = document.getElementById('wishes');
         const newWish = document.createElement('li');
@@ -135,7 +144,7 @@
         // Remove the wish after animation ends
         setTimeout(() => {
           wishesContainer.removeChild(newWish);
-        }, 10000); // 3 seconds matches the animation duration
+        }, 500000);
       });
     });
   </script>
