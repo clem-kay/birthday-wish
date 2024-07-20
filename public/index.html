@@ -5,81 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Birthday Wishes</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      margin: 0;
-      background-color: #f8f9fa;
-    }
-    .chat-bar {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 600px;
-      background-color: #ffffff;
-      border: 1px solid #dee2e6;
-      border-radius: 10px;
-      padding: 10px;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .carousel-container {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .wishes-container {
-      position: absolute;
-      bottom: 100px; /* Adjusted to move the chat messages up */
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 600px;
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-    .wish {
-      display: flex;
-      align-items: center;
-      background-color: #ffffff;
-      border: 1px solid #dee2e6;
-      border-radius: 20px;
-      padding: 10px;
-      margin: 10px 0;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      animation: moveUp 3s linear forwards;
-    }
-    .wish img {
-      max-height: 200px; /* Adjusted to make images larger */
-      width: auto; /* Maintain aspect ratio */
-      margin-right: 10px; /* Space between image and text */
-    }
-    @keyframes moveUp {
-      0% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      90% {
-        opacity: 1;
-        transform: translateY(-100px);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-150px);
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
+   
   <script src="/socket.io/socket.io.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const socket = io();
+      const wishesBox = document.querySelector('.wishes-box');
+      const toggleButton = document.querySelector('.toggle-button');
 
       // Function to fetch and update images in the carousel
       function fetchAndUpdateImages() {
@@ -106,11 +39,9 @@
           });
       }
 
-      // Initial fetch to load images when the page loads
       fetchAndUpdateImages();
 
-      // Set interval to update images every 50 seconds
-      setInterval(fetchAndUpdateImages, 60000);
+      setInterval(fetchAndUpdateImages, 5000);
 
       // Handle form submission
       const form = document.getElementById('wish-form');
@@ -141,12 +72,43 @@
         }
         wishesContainer.appendChild(newWish);
 
-        // Remove the wish after animation ends
-        setTimeout(() => {
-          wishesContainer.removeChild(newWish);
-        }, 500000);
+        // Update the .wishes-content div
+        const wishesBoxContent = document.querySelector('.wishes-content');
+        const wishDiv = document.createElement('div');
+        wishDiv.classList.add('wish-text');
+        wishDiv.textContent = data.message;
+
+        wishesBoxContent.appendChild(wishDiv);
+        
+      });
+
+      // Toggle wishes box visibility
+      toggleButton.addEventListener('click', () => {
+        wishesBox.classList.toggle('hidden');
+        toggleButton.textContent = wishesBox.classList.contains('hidden') ? 'Show' : 'Hide';
       });
     });
+    
+
+  function fetchAndUpdateWishes() {
+  fetch('/wishes/all-wishes')
+    .then(response => response.json())
+    .then(wishes => {
+      const wishesBoxContent = document.querySelector('.wishes-content');
+      wishesBoxContent.innerHTML = ''; // Clear current content
+
+      wishes.forEach(wish => {
+        const wishDiv = document.createElement('div');
+        wishDiv.classList.add('wish-text');
+        wishDiv.textContent = wish.message;
+        wishesBoxContent.appendChild(wishDiv);
+      });
+    });
+}
+
+// Initial fetch to load wishes when the page loads
+fetchAndUpdateWishes();
+
   </script>
 </head>
 <body>
@@ -171,7 +133,18 @@
       <input type="text" id="wish" name="message" class="form-control mr-2" placeholder="Your wish..." required>
       <input type="file" id="photo" name="photo" class="form-control-file mr-2">
       <button type="submit" class="btn btn-primary">Send</button>
+      <button class="toggle-button">Hide</button>
     </form>
+  </div>
+
+  <div class="wishes-box">
+    <div class="wishes-box-header">
+      <h3 class="wishes-box-title">All Wishes</h3>
+      
+    </div>
+    <div class="wishes-content">
+      <!-- All wishes will be displayed here -->
+    </div>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
