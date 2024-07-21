@@ -5,14 +5,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class WishesService {
 
   constructor(private readonly prismaService: PrismaService){}
-  private wishes: { message: string, imageUrl?: string }[] = [];
+  private wishes: {name:string, message: string, imageUrl?: string }[] = [];
 
-  addWish(message: string, imageUrl?: string) {
-    this.wishes.push({ message, imageUrl });
+  addWish(name:string,message: string, imageUrl?: string) {
+    this.wishes.push({ name,message, imageUrl });
   }
   
-  async saveWish(message:string,imageUrl:string) {
-    const dto = {message:message,imageUrl:imageUrl} 
+  async saveWish(name:string,message:string,imageUrl:string) {
+    const dto = {name:name,message:message,imageUrl:imageUrl} 
     return await this.prismaService.wish.create({
       data:dto
     })

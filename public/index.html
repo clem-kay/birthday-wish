@@ -7,47 +7,140 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const socket = io();
+      const wishesBox = document.querySelector('.wishes-box');
+      const toggleButton = document.querySelector('.toggle-button');
+
+      function fetchAndUpdateImages() {
+        fetch('/images')
+          .then(response => response.json())
+          .then(images => {
+            const carouselInner = document.querySelector('.carousel-inner');
+            const carouselIndicators = document.querySelector('.carousel-indicators');
+            carouselInner.innerHTML = '';
+            carouselIndicators.innerHTML = '';
+            images.forEach((image, index) => {
+              const isActive = index === 0 ? 'active' : '';
+              const carouselItem = `
+                <div class="carousel-item ${isActive}">
+                  <img class="d-block w-100" src="${image}" alt="Slide ${index + 1}">
+                </div>
+              `;
+              carouselInner.innerHTML += carouselItem;
+              const indicator = `
+                <li data-target="#carouselExampleIndicators" data-slide-to="${index}" class="${isActive}"></li>
+              `;
+              carouselIndicators.innerHTML += indicator;
+            });
+          });
+      }
+
+      fetchAndUpdateImages();
+      setInterval(fetchAndUpdateImages, 5000);
+
+      const form = document.getElementById('wish-form');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const response = await fetch('/wishes', {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await response.json();
+        socket.emit('new-wish', result);
+        document.getElementById('wish').value = '';
+        document.getElementById('photo').value = '';
+        document.getElementById('name').value = '';
+      });
+
+      socket.on('new-wish', (data) => {
+        const wishesContainer = document.getElementById('wishes');
+        const newWish = document.createElement('li');
+        newWish.classList.add('wish');
+        newWish.textContent = data.message;
+        if (data.imageUrl) {
+          const img = document.createElement('img');
+          img.src = data.imageUrl;
+          img.classList.add('img-fluid');
+          newWish.appendChild(img);
+        }
+        wishesContainer.appendChild(newWish);
+
+        const wishesBoxContent = document.querySelector('.wishes-content');
+        const wishDiv = document.createElement('div');
+        wishDiv.classList.add('wish-text');
+        wishDiv.innerHTML = `<strong>${data.name}:</strong> ${data.message}`;
+
+        wishesBoxContent.appendChild(wishDiv);
+      });
+
+      toggleButton.addEventListener('click', () => {
+        wishesBox.classList.toggle('hidden');
+        toggleButton.textContent = wishesBox.classList.contains('hidden') ? 'Show' : 'Hide';
+      });
+    });
+
+    function fetchAndUpdateWishes() {
+      fetch('/wishes/all-wishes')
+        .then(response => response.json())
+        .then(wishes => {
+          const wishesBoxContent = document.querySelector('.wishes-content');
+          wishesBoxContent.innerHTML = '';
+
+          wishes.forEach(wish => {
+            const wishDiv = document.createElement('div');
+            wishDiv.classList.add('wish-text');
+            wishDiv.innerHTML = `<strong>${wish.name}:</strong> ${wish.message}`;
+
+            wishesBoxContent.appendChild(wishDiv);
+          });
+        });
+    }
+
+    fetchAndUpdateWishes();
+  </script>
 </head>
 <body>
-  <div class="container">
-    <div class="carousel-container">
-      <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators"></ol>
-        <div class="carousel-inner"></div>
-        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="sr-only">Next</span>
-        </a>
-      </div>
+  <div class="carousel-container">
+    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+      <ol class="carousel-indicators"></ol>
+      <div class="carousel-inner"></div>
+      <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
     </div>
+    <ul id="wishes" class="wishes-container"></ul>
+  </div>
 
-    <ul id="wishes" class="wishes-container list-unstyled"></ul>
+  <div class="chat-bar">
+    <form id="wish-form" class="d-flex">
+      <input type="text" id="name" name="name" class="form-control mr-2" placeholder="Your name..." required>
+      <input type="text" id="message" name="message" class="form-control mr-2" placeholder="Your wish..." required>
+      <input type="file" id="photo" name="photo" class="form-control-file mr-2">
+      <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+  </div>
 
-    <div class="wishes-box">
-      <div class="wishes-box-header">
-        <h3 class="wishes-box-title">All Wishes</h3>
-      </div>
-      <div class="wishes-content">
-        <!-- All wishes will be displayed here -->
-      </div>
+  <button class="toggle-button">Show</button>
+
+  <div class="wishes-box">
+    <div class="wishes-box-header">
+      <h3 class="wishes-box-title">All Wishes</h3>
     </div>
-
-    <div class="chat-bar">
-      <form id="wish-form" class="d-flex flex-column flex-sm-row">
-        <input type="text" id="wish" name="message" class="form-control mb-2 mb-sm-0 mr-sm-2" placeholder="Your wish..." required>
-        <input type="file" id="photo" name="photo" class="form-control-file mb-2 mb-sm-0 mr-sm-2">
-        <button type="submit" class="btn btn-primary mb-2 mb-sm-0">Send</button>
-      </form>
+    <div class="wishes-content">
+      <!-- All wishes will be displayed here -->
     </div>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="js/main.js"></script>
 </body>
 </html>

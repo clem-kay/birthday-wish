@@ -16,6 +16,7 @@ datasource db {
 // prisma/schema.prisma
 model Wish {
   id        Int      @id @default(autoincrement())
+  name      String
   message   String
   imageUrl  String?
   createdAt DateTime @default(now())

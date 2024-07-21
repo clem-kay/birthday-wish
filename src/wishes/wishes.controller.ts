@@ -21,14 +21,14 @@ export class WishesController {
       }),
     }),
   )
-  addWish(
+  addWish(@Body('name') name: string,
     @Body('message') message: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const imageUrl = file ? `/public/images/${file.filename}` : undefined;
-    this.wishesService.addWish(message, imageUrl);
-    this.wishesService.saveWish(message,imageUrl);
-    return { message, imageUrl };
+    this.wishesService.addWish(name,message, imageUrl);
+    this.wishesService.saveWish(name,message,imageUrl);
+    return {name, message, imageUrl };
   }
 
   @Get('/all-wishes')

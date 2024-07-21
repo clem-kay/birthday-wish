@@ -1,3 +1,4 @@
+/* Base Styles */
 body {
   display: flex;
   flex-direction: column;
@@ -6,27 +7,21 @@ body {
   background-color: #f8f9fa;
 }
 
-.chat-bar {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 600px;
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Ensure the carousel container takes full width */
 .carousel-container {
-  width: 100%;
-  margin-bottom: 20px;
+  flex: 1;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Style for the wishes container */
+.carousel-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure images cover the container without distortion */
+}
+
 .wishes-container {
   position: absolute;
   bottom: 10px;
@@ -38,21 +33,41 @@ body {
   padding: 0;
   margin: 0;
 }
+.chat-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1000px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
 
-/* Wishes box styling */
+#wish-form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
 .wishes-box {
   position: fixed;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
+  top: 60px; /* Positioned below the carousel */
+  right: 20px;
   width: 300px;
   max-height: 500px;
   background-color: #ffffff;
   border: 1px solid #dee2e6;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  padding: 10px; /* Add padding for spacing */
+  z-index: 20;
+  transition: transform 0.3s ease;
 }
 
 .wishes-box-header {
@@ -65,15 +80,23 @@ body {
 }
 
 .wishes-box-title {
-  margin: 0;
   font-size: 18px;
+  margin: 0;
 }
 
 .toggle-button {
-  background: none;
+  position: fixed;
+  bottom: 80px; /* Positioned above the chat bar */
+  right: 20px;
+  background-color: #007bff;
+  color: #ffffff;
   border: none;
-  font-size: 18px;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+  z-index: 30;
+  font-size: 18px;
 }
 
 .hidden {
@@ -81,36 +104,40 @@ body {
 }
 
 .wishes-content {
-  height: 300px; /* Adjust height as needed */
-  overflow-y: auto; /* Enable vertical scrolling */
-  border: 1px solid #ddd; /* Optional: add a border for better visibility */
-  padding: 10px; /* Optional: add padding for spacing */
+  height: 400px; /* Adjust height as needed */
+  overflow-y: auto;
+  padding: 10px;
+  border-top: 1px solid #dee2e6;
 }
-
 .wish {
-  display: flex;
-  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
   background-color: #ffffff;
   border: 1px solid #dee2e6;
-  border-radius: 20px;
-  padding: 10px;
-  margin: 10px 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: moveUp 3s linear forwards;
+  animation-direction:alternate
+  
 }
 
 .wish-text {
-  display: flex;
-  align-items: center;
   padding: 10px;
-  margin: 10px 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 8px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.wish img, .wish-text img {
+.wish-text strong {
+  font-weight: bold;
+}
+
+.wish img {
   max-height: 50px;
   max-width: 50px;
-  margin-left: 10px;
+  margin-left: 8px;
 }
 
 @keyframes moveUp {
@@ -128,50 +155,52 @@ body {
   }
 }
 
-/* Responsive form styling */
-#wish-form {
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 576px) {
-  #wish-form {
-    flex-direction: row;
-  }
-}
-
+/* Mobile Styles */
 @media (max-width: 576px) {
-  .container {
-    display: flex;
-    flex-direction: column;
+  body {
+    overflow: hidden; /* Prevent scrolling */
   }
 
   .carousel-container {
-    order: 1; /* Ensure carousel is first */
-    height: 200px; /* Adjust height as needed for mobile view */
+    height: 100vh; /* Full viewport height */
   }
 
-  .carousel-item img {
-    height: 100%; /* Ensure images fill the carousel height */
-    object-fit: cover; /* Maintain aspect ratio */
-  }
-
-  .wishes-box {
-    order: 2; /* Ensure wishes-box is second */
-    position: relative;
-    top: 160px;
-    right: 0;
-    transform: none;
-    width: 100%;
-    max-height: none;
-    margin-bottom: 10px;
+  .carousel-inner img {
+    height: 100%;
   }
 
   .chat-bar {
-    order: 3; /* Ensure chat-bar is third */
     width: 100%;
+    bottom: 0;
+    left: 0;
+    transform: none;
+    border-radius: 0;
+    box-shadow: none;
     padding: 10px;
-    background-color: #f8f9fa;
-    border-top: 1px solid #ddd;
+  }
+
+  #wish-form {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .wishes-box {
+    top: 520px; /* Positioned slightly above the bottom */
+    right:0;
+    width: 100%;
+    max-height: 200px;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;
+  }
+
+  .wishes-content {
+    height: auto; /* Adjust height as needed */
+    padding: 8px;
+  }
+
+  .toggle-button {
+    bottom: 80px; /* Positioned above the chat bar */
+    right: 20px;
   }
 }
