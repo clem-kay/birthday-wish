@@ -185,7 +185,7 @@ body {
   }
 
   .wishes-box {
-    top: 520px; /* Positioned slightly above the bottom */
+    top: 420px; /* Positioned slightly above the bottom */
     right:0;
     width: 100%;
     max-height: 200px;
