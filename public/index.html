@@ -12,6 +12,7 @@
       const socket = io();
       const wishesBox = document.querySelector('.wishes-box');
       const toggleButton = document.querySelector('.toggle-button');
+      const wishAlert = document.getElementById('wish-alert');
 
       function fetchAndUpdateImages() {
         fetch('/images')
@@ -50,9 +51,6 @@
         });
         const result = await response.json();
         socket.emit('new-wish', result);
-        document.getElementById('wish').value = '';
-        document.getElementById('photo').value = '';
-        document.getElementById('name').value = '';
       });
 
       socket.on('new-wish', (data) => {
@@ -74,6 +72,16 @@
         wishDiv.innerHTML = `<strong>${data.name}:</strong> ${data.message}`;
 
         wishesBoxContent.appendChild(wishDiv);
+        document.getElementById('message').value = '';
+        document.getElementById('photo').value = '';
+        document.getElementById('name').value = '';
+         
+        // Show the alert with animation
+    wishAlert.classList.add('show');
+    setTimeout(() => {
+      wishAlert.classList.remove('show');
+    }, 5000); // Hide the alert after 3 seconds
+
       });
 
       toggleButton.addEventListener('click', () => {
@@ -130,6 +138,9 @@
 
   <button class="toggle-button">Show</button>
 
+  <div id="wish-alert" class="alert alert-success" role="alert">
+    Wish sent!
+  </div>
   <div class="wishes-box">
     <div class="wishes-box-header">
       <h3 class="wishes-box-title">All Wishes</h3>
