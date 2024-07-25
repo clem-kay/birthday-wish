@@ -14,32 +14,42 @@
       const toggleButton = document.querySelector('.toggle-button');
       const wishAlert = document.getElementById('wish-alert');
 
-      function fetchAndUpdateImages() {
-        fetch('/images')
-          .then(response => response.json())
-          .then(images => {
+      let fetchInterval; // Declare fetchInterval to store the interval ID
+let imageLength = 1;
+
+function fetchAndUpdateImages() {
+    fetch('/images')
+        .then(response => response.json())
+        .then(images => {
+            imageLength = images.length;
             const carouselInner = document.querySelector('.carousel-inner');
             const carouselIndicators = document.querySelector('.carousel-indicators');
             carouselInner.innerHTML = '';
             carouselIndicators.innerHTML = '';
             images.forEach((image, index) => {
-              const isActive = index === 0 ? 'active' : '';
-              const carouselItem = `
-                <div class="carousel-item ${isActive}">
-                  <img class="d-block w-100" src="${image}" alt="Slide ${index + 1}">
-                </div>
-              `;
-              carouselInner.innerHTML += carouselItem;
-              const indicator = `
-                <li data-target="#carouselExampleIndicators" data-slide-to="${index}" class="${isActive}"></li>
-              `;
-              carouselIndicators.innerHTML += indicator;
+                const isActive = index === 0 ? 'active' : '';
+                const carouselItem = `
+                    <div class="carousel-item ${isActive}">
+                        <img class="d-block w-100" src="${image}" alt="Slide ${index + 1}">
+                    </div>
+                `;
+                carouselInner.innerHTML += carouselItem;
+                const indicator = `
+                    <li data-target="#carouselExampleIndicators" data-slide-to="${index}" class="${isActive}"></li>
+                `;
+                carouselIndicators.innerHTML += indicator;
             });
-          });
-      }
 
-      fetchAndUpdateImages();
-      setInterval(fetchAndUpdateImages, 180000);
+            // Clear the existing interval and set a new one based on the number of images
+            if (fetchInterval) {
+                clearInterval(fetchInterval);
+            }
+            fetchInterval = setInterval(fetchAndUpdateImages, imageLength * 3000);
+        });
+}
+
+
+fetchAndUpdateImages();
 
       const form = document.getElementById('wish-form');
       form.addEventListener('submit', async (event) => {

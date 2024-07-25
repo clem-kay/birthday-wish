@@ -25,7 +25,7 @@ export class WishesController {
     @Body('message') message: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const imageUrl = file ? `/public/images/${file.filename}` : undefined;
+    const imageUrl = file ? `/images/${file.filename}` : undefined;
     this.wishesService.addWish(name,message, imageUrl);
     this.wishesService.saveWish(name,message,imageUrl);
     return {name, message, imageUrl };
